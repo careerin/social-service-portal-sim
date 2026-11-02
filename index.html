@@ -5,498 +5,668 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#1668aa">
   <title>병무청 사회복무연수 모바일 지원센터</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap');
-    
+    :root {
+      --ink: #162432;
+      --sub: #586976;
+      --blue: #1668aa;
+      --blue-dark: #0f4d80;
+      --line: #e3e8ed;
+      --bg: #0f172a;
+      --red: #e54b38;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
+    }
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
-
-    body {
-      background-color: #0f172a;
+    html, body {
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      min-height: 100dvh;
-      color: #1e293b;
+      width: 100%;
+      min-height: 100%;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-stack);
+      -webkit-font-smoothing: antialiased;
+      word-break: keep-all;
+    }
+    button, input, select {
+      font-family: inherit;
+    }
+    button {
+      cursor: pointer;
+    }
+    button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
     }
 
-    .mobile-frame {
+    /* 모바일 전용 컨테이너 (최대 440px) */
+    .app {
       width: 100%;
       max-width: 440px;
       min-height: 100vh;
       min-height: 100dvh;
+      margin: 0 auto;
       background: #ffffff;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
+      position: relative;
+    }
+
+    /* 최상단 공공 서비스 띠 (SSL 문구 완전 제거) */
+    .govtop {
+      background: #f8fafc;
+      border-bottom: 1px solid #e7ecf0;
+      padding: 7px 14px;
+      padding-top: calc(7px + env(safe-area-inset-top));
+      color: #627482;
+      font-size: 10.5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 500;
+    }
+    .govtop::before {
+      content: '';
+      display: inline-block;
+      width: 12px;
+      height: 8px;
+      background: linear-gradient(to bottom, #cd2e3a 50%, #0047a0 50%);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* 헤더 */
+    .head {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .logo {
+      font-size: 15.5px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .logo span {
+      color: var(--blue);
+    }
+    .badge-staff {
+      background: #edf5fc;
+      color: var(--blue);
+      font-size: 9.5px;
+      padding: 1.5px 5px;
+      border-radius: 3px;
+      font-weight: 700;
+      border: 1px solid #d0e3f2;
+      margin-left: 3px;
+    }
+    .menu {
+      font-size: 18px;
+      color: #637785;
+      line-height: 1;
+      padding: 2px;
+    }
+
+    /* 본문 페이지 영역 */
+    .page {
+      padding: 16px 14px calc(24px + env(safe-area-inset-bottom));
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .screen {
+      animation: fadeIn .28s ease both;
+    }
+    .screen[hidden] {
+      display: none;
+    }
+    .crumb {
+      font-size: 10.5px;
+      color: #8899a6;
+      margin: 0 0 6px;
+      font-weight: 500;
+    }
+    .title {
+      font-size: 20px;
+      line-height: 1.32;
+      letter-spacing: -0.04em;
+      margin: 0 0 6px;
+      color: #112330;
+      font-weight: 800;
+    }
+    .desc {
+      color: var(--sub);
+      font-size: 12.5px;
+      line-height: 1.5;
+      margin: 0 0 13px;
+    }
+
+    /* 진행도 바 */
+    .progress {
+      height: 3.5px;
+      background: #ecf1f4;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0 0 13px;
+    }
+    .progress span {
+      display: block;
+      height: 100%;
+      background: var(--blue);
+      transition: width .35s ease;
+    }
+
+    /* 모바일 맞춤 카드 */
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 15px 13px;
+      background: #fff;
+      margin: 8px 0 12px;
+      box-shadow: 0 2px 8px rgba(18, 43, 62, 0.03);
+    }
+    .notice {
+      background: #f4f8fc;
+      border: 1px solid #d8e6f2;
+      border-radius: 7px;
+      padding: 10px 11px;
+      font-size: 11.5px;
+      color: #355368;
+      line-height: 1.5;
+      margin-bottom: 13px;
+    }
+    .notice b {
+      color: var(--blue-dark);
+      display: block;
+      margin-bottom: 3px;
+      font-size: 12px;
+    }
+
+    /* 폼 입력창 스타일 (컴팩트 모바일) */
+    .label {
+      display: block;
+      font-weight: 700;
+      font-size: 12.5px;
+      margin: 11px 0 5px;
+      color: #1f3342;
+    }
+    .label:first-of-type {
+      margin-top: 0;
+    }
+    .label small {
+      font-weight: normal;
+      color: #7b8d99;
+      font-size: 10.5px;
+      margin-left: 2px;
+    }
+    .inp {
+      width: 100%;
+      height: 46px;
+      border: 1.5px solid #cbd7e0;
+      border-radius: 7px;
+      padding: 0 12px;
+      font-size: 15px;
+      color: #172b3a;
+      background: #fff;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .inp:focus {
+      border-color: var(--blue);
+    }
+    .inp::placeholder {
+      color: #aab8c2;
+      font-size: 13px;
+    }
+    .hint {
+      font-size: 10.5px;
+      color: #70828e;
+      line-height: 1.4;
+      margin: 4px 0 0;
+    }
+
+    /* 버튼 스타일 */
+    .btn {
+      height: 48px;
+      border: 0;
+      border-radius: 7px;
+      width: 100%;
+      font-weight: 700;
+      font-size: 14.5px;
+      margin-top: 8px;
+      background: var(--blue);
+      color: white;
+      text-align: center;
+      transition: background .2s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn:active {
+      transform: scale(0.985);
+      background: var(--blue-dark);
+    }
+    .btn.outline {
+      background: #fff;
+      border: 1px solid #cadbe7;
+      color: #2b5472;
+    }
+    .btn.dark {
+      background: #15222c;
+      color: #fff;
+    }
+
+    /* 체크박스 */
+    .check {
+      display: flex;
+      gap: 7px;
+      margin: 11px 0 4px;
+      font-size: 11.5px;
+      line-height: 1.4;
+      color: #4b616e;
+      align-items: flex-start;
+    }
+    .check input {
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+      accent-color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    /* 3단계: 해커 터미널 모바일 반응형 화면 */
+    .hack-wrap {
+      background: #091219;
+      color: #c9f5db;
+      min-height: calc(100vh - 75px);
+      min-height: calc(100dvh - 75px);
+      margin: -16px -14px calc(-24px - env(safe-area-inset-bottom));
+      padding: 20px 14px calc(24px + env(safe-area-inset-bottom));
+      font-family: ui-monospace, Menlo, Consolas, monospace;
       position: relative;
       overflow-x: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
     }
-
-    .screen-fade {
-      animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    .glitch {
+      display: inline-block;
+      color: #ff5544;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      margin-bottom: 5px;
+      animation: pulse 1.2s infinite alternate;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    .hack-title {
+      font-family: var(--font-stack);
+      font-size: 19px;
+      line-height: 1.34;
+      color: #fff;
+      margin: 4px 0 12px;
+      letter-spacing: -0.03em;
     }
-
+    .terminal {
+      background: #0d1a24;
+      border: 1px solid #1f3b4d;
+      border-radius: 7px;
+      padding: 11px 10px;
+      font-size: 10.5px;
+      line-height: 1.65;
+      margin: 12px 0;
+      word-break: break-all;
+    }
     .term-line {
       opacity: 0;
       transform: translateY(4px);
-      animation: termFadeIn 0.35s ease forwards;
+      animation: termFade .3s ease forwards;
     }
-    @keyframes termFadeIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .term-line:nth-child(1) { animation-delay: 0.15s; }
-    .term-line:nth-child(2) { animation-delay: 0.65s; }
+    .term-line.cyan { color: #5eead4; }
+    .term-line.yellow { color: #fde047; }
+    .term-line.red { color: #f87171; font-weight: bold; }
+    .term-line:nth-child(1) { animation-delay: .15s; }
+    .term-line:nth-child(2) { animation-delay: .65s; }
     .term-line:nth-child(3) { animation-delay: 1.15s; }
     .term-line:nth-child(4) { animation-delay: 1.65s; }
     .term-line:nth-child(5) { animation-delay: 2.15s; }
 
-    .stolen-reveal {
+    .stolen-box {
       opacity: 0;
-      animation: termFadeIn 0.45s 2.65s forwards;
+      animation: termFade .4s 2.6s forwards;
+      border: 1.5px solid #ef4444;
+      background: #1c0e12;
+      border-radius: 9px;
+      padding: 13px 12px;
+      margin: 14px 0;
+      font-family: var(--font-stack);
+    }
+    .stolen-box h3 {
+      margin: 0 0 9px;
+      color: #ff8577;
+      font-size: 13.5px;
+      letter-spacing: -0.02em;
+    }
+    .stolen-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed #3a1a20;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .stolen-item:last-child { border-bottom: 0; }
+    .stolen-item b {
+      color: #fff;
+      font-weight: 700;
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
+    }
+    .next-btn {
+      font-family: var(--font-stack);
+      background: #e54b38;
+      color: #fff;
+      border: 0;
+      border-radius: 7px;
+      height: 48px;
+      width: 100%;
+      font-weight: 700;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
     }
 
-    @keyframes glitchPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+    /* 4단계: 교육 해설 화면 */
+    .badge {
+      display: inline-block;
+      background: #e6f3fa;
+      color: var(--blue-dark);
+      border-radius: 16px;
+      padding: 4px 9px;
+      font-size: 10.5px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
-    .glitch-badge {
-      animation: glitchPulse 1.1s infinite ease-in-out;
+    .alert-banner {
+      background: #fef2f2;
+      border: 1px solid #fee2e2;
+      border-radius: 7px;
+      padding: 11px 12px;
+      color: #991b1b;
+      font-size: 11.5px;
+      line-height: 1.5;
+      margin: 11px 0;
+    }
+    .alert-banner b {
+      display: block;
+      font-size: 12.5px;
+      margin-bottom: 2px;
+    }
+    .center-risk-box {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 7px;
+      padding: 12px 11px;
+      margin: 11px 0;
+      color: #9a3412;
+      font-size: 11.5px;
+      line-height: 1.55;
+    }
+    .center-risk-box b {
+      color: #c2410c;
+      display: block;
+      font-size: 12.5px;
+      margin-bottom: 3px;
+    }
+    .step-list {
+      margin: 10px 0;
+      padding: 0;
+      list-style: none;
+    }
+    .step-item {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 13px;
+    }
+    .step-item::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 5px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+    .step-item::after {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 15px;
+      bottom: -10px;
+      width: 1.5px;
+      background: #e2e8ed;
+    }
+    .step-item:last-child::after { display: none; }
+    .step-item h4 {
+      margin: 0 0 3px;
+      font-size: 13px;
+      color: #1a2f3f;
+      font-weight: 700;
+    }
+    .step-item p {
+      margin: 0;
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: #556c7d;
     }
 
-    #toast-msg {
-      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* 하단 푸터 */
+    .foot {
+      background: #f8fafb;
+      border-top: 1px solid var(--line);
+      padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+      font-size: 10px;
+      color: #7b8d99;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes termFade {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      from { opacity: 0.55; }
+      to { opacity: 1; }
     }
   </style>
 </head>
 <body>
-
-  <div class="mobile-frame">
-
-    <header class="bg-[#f8fafc] border-b border-slate-200 px-4 py-2 flex items-center justify-between select-none">
-      <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
-        <span class="inline-block w-3.5 h-2.5 rounded-sm bg-gradient-to-b from-[#cd2e3a] to-[#0047a0] flex-shrink-0"></span>
-        <span>병무청 사회복무연수 포털 공식 서비스</span>
-      </div>
-      <span class="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-mono font-semibold">SSL 256-bit</span>
+  <div class="app">
+    <!-- 상단 행정망 서비스 띠 (SSL 문구 삭제 완료) -->
+    <div class="govtop">병무청 사회복무연수 포털 공식 서비스</div>
+    <header class="head">
+      <div class="logo"><span>병무청</span> 사회복무포털 <span class="badge-staff">교육생전용</span></div>
+      <div class="menu">☰</div>
     </header>
 
-    <div class="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-20 shadow-sm">
-      <div class="flex items-center gap-1.5">
-        <div class="font-extrabold text-[17px] tracking-tight text-slate-800">
-          <span class="text-[#1668aa]">병무청</span> 사회복무포털
-        </div>
-        <span class="text-[10.5px] font-bold text-[#1668aa] bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">교육생전용</span>
-      </div>
-      <button type="button" aria-label="메뉴" class="text-slate-500 text-lg p-1 active:scale-95 transition-transform">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16m-7 6h7"></path>
-        </svg>
-      </button>
-    </div>
+    <main class="page">
+      <!-- 1단계: 사회복무요원 직무/소양 교육 출석 및 교재 다운로드 -->
+      <section class="screen" id="step1">
+        <p class="crumb">사회복무연수 〉 법정직무교육 〉 출석확인</p>
+        <div class="progress"><span style="width: 33%"></span></div>
+        <h1 class="title">교육 출석 인정 등록 및<br>복무 가이드 교재 수령</h1>
+        <p class="desc">사회복무요원 직무·소양 법정교육 출석 인정과 복무 규정 및 개인정보보호 실무 교재(PDF) 수령을 위해 등록 정보를 확인합니다.</p>
 
-    <div class="h-1 w-full bg-slate-100 overflow-hidden">
-      <div id="top-progress" class="h-full bg-[#1668aa] transition-all duration-300 w-1/3"></div>
-    </div>
-
-    <main class="flex-1 p-5 flex flex-col justify-between">
-
-      <section id="step1" class="screen-fade flex-1 flex flex-col">
-        <div>
-          <p class="text-[11px] font-semibold text-slate-400 mb-1">사회복무연수 〉 법정직무교육 〉 출석확인</p>
-          <h1 class="text-2xl font-black text-slate-900 tracking-tight leading-snug mb-1.5">
-            교육 출석 인정 등록 및<br>복무 가이드 교재 수령
-          </h1>
-          <p class="text-[13px] text-slate-500 leading-relaxed mb-4">
-            사회복무요원 직무·소양 법정교육 출석 인정과 복무 규정 및 개인정보보호 실무 교재(PDF) 수령을 위해 등록 정보를 확인합니다.
-          </p>
-
-          <div class="bg-blue-50/70 border border-blue-200/70 rounded-xl p-3.5 mb-4 text-xs text-blue-900 leading-relaxed">
-            <div class="font-bold text-[#0f4d80] flex items-center gap-1 mb-1 text-[12.5px]">
-              <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-              </svg>
-              <span>사회복무연수 이수 시간 연계 안내</span>
-            </div>
+        <div class="card">
+          <div class="notice">
+            <b>사회복무연수 이수 시간 연계 안내</b>
             병무청 사회복무포털(복무관리시스템)과 복무기관에 이수 결과가 정상 등록되도록 소속 복무기관과 연락처를 정확히 입력해 주세요.
           </div>
 
-          <div class="space-y-3.5 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
-            <div>
-              <label for="u_inst" class="block text-xs font-bold text-slate-700 mb-1.5">
-                소속 복무기관명 <span class="text-rose-500">*</span>
-              </label>
-              <input id="u_inst" type="text" placeholder="예: OO구청, OO초등학교, OO복지관" 
-                     class="w-full h-11 px-3.5 text-[15px] border border-slate-300 rounded-lg focus:border-[#1668aa] focus:ring-1 focus:ring-[#1668aa] outline-none transition-all placeholder:text-slate-400">
-            </div>
+          <label class="label" for="u_inst">소속 복무기관명</label>
+          <input id="u_inst" class="inp" placeholder="예: OO구청, OO초등학교, OO복지관" autocomplete="off">
 
-            <div>
-              <label for="u_dept" class="block text-xs font-bold text-slate-700 mb-1.5">
-                배치 부서 / 복무 분야 <span class="text-slate-400 font-normal">(선택)</span>
-              </label>
-              <input id="u_dept" type="text" placeholder="예: 주민자치과 / 사회복지지원" 
-                     class="w-full h-11 px-3.5 text-[15px] border border-slate-300 rounded-lg focus:border-[#1668aa] focus:ring-1 focus:ring-[#1668aa] outline-none transition-all placeholder:text-slate-400">
-            </div>
+          <label class="label" for="u_dept">배치 부서 / 복무 분야</label>
+          <input id="u_dept" class="inp" placeholder="예: 주민자치과 / 사회복지지원" autocomplete="off">
 
-            <div>
-              <label for="u_name" class="block text-xs font-bold text-slate-700 mb-1.5">
-                성명 <span class="text-rose-500">*</span>
-              </label>
-              <input id="u_name" type="text" placeholder="본인 성명을 입력하세요" 
-                     class="w-full h-11 px-3.5 text-[15px] border border-slate-300 rounded-lg focus:border-[#1668aa] focus:ring-1 focus:ring-[#1668aa] outline-none transition-all placeholder:text-slate-400">
-            </div>
+          <label class="label" for="u_name">성명</label>
+          <input id="u_name" class="inp" placeholder="성명을 입력하세요" autocomplete="name">
 
-            <div>
-              <label for="u_phone" class="block text-xs font-bold text-slate-700 mb-1.5">
-                휴대전화 번호 <span class="text-rose-500">*</span>
-              </label>
-              <input id="u_phone" type="tel" inputmode="numeric" maxlength="13" placeholder="010-0000-0000" 
-                     class="w-full h-11 px-3.5 text-[15px] border border-slate-300 rounded-lg focus:border-[#1668aa] focus:ring-1 focus:ring-[#1668aa] outline-none transition-all placeholder:text-slate-400">
-              <p class="text-[11px] text-slate-400 mt-1">교육 이수 인증 및 모바일 교재 열람 링크가 알림톡으로 전송됩니다.</p>
-            </div>
+          <label class="label" for="u_phone">휴대전화 번호</label>
+          <input id="u_phone" class="inp" type="tel" inputmode="tel" maxlength="13" placeholder="010-0000-0000" autocomplete="tel">
+          <p class="hint">교육 이수 인증 및 모바일 교재 열람 링크가 알림톡으로 전송됩니다.</p>
 
-            <label class="flex items-start gap-2 pt-1 cursor-pointer select-none">
-              <input id="u_agree" type="checkbox" checked class="w-4 h-4 mt-0.5 accent-[#1668aa] rounded">
-              <span class="text-xs text-slate-600 leading-tight">
-                복무연수 이수 관리 및 교재 전송을 위한 개인정보 처리에 동의합니다.
-              </span>
-            </label>
-          </div>
-        </div>
+          <label class="check">
+            <input id="u_agree" type="checkbox" checked>
+            <span>복무연수 이수 관리 및 교재 전송을 위한 개인정보 처리에 동의합니다.</span>
+          </label>
 
-        <div class="mt-5">
-          <button id="btn_step1" class="w-full h-12 bg-[#1668aa] hover:bg-[#0f4d80] active:scale-[0.98] text-white font-bold rounded-xl text-[15px] shadow-md shadow-blue-900/10 transition-all flex items-center justify-center gap-1.5">
-            <span>다음 단계 (보안 교재 수령 확인)</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
+          <button id="btn_step1" class="btn">다음 단계 (보안 교재 수령 확인)</button>
         </div>
       </section>
 
-      <section id="step2" class="screen-fade flex-1 flex-col justify-between hidden">
-        <div>
-          <p class="text-[11px] font-semibold text-slate-400 mb-1">사회복무연수 〉 교재 다운로드 〉 보안 설정</p>
-          <h1 class="text-2xl font-black text-slate-900 tracking-tight leading-snug mb-1.5">
-            보안 문서 암호화 및<br>사회복무포털 본인 확인
-          </h1>
-          <p class="text-[13px] text-slate-500 leading-relaxed mb-4">
-            <span id="txt_target_name" class="font-bold text-[#1668aa]">요원</span>님의 배포 교재에는 행정업무 취급 가이드가 포함되어 열람 보안암호가 필수 적용됩니다.
-          </p>
+      <!-- 2단계: 교육생 추가 식별 및 문서 암호화 유도 -->
+      <section class="screen" id="step2" hidden>
+        <p class="crumb">사회복무연수 〉 교재 다운로드 〉 보안 설정</p>
+        <div class="progress"><span style="width: 66%"></span></div>
+        <h1 class="title">보안 문서 암호화 및<br>사회복무포털 본인 확인</h1>
+        <p class="desc"><span id="txt_target_name" style="color:var(--blue); font-weight:bold;">요원</span>님의 배포 교재에는 행정업무 취급 가이드가 포함되어 열람 보안암호가 필수 적용됩니다.</p>
 
-          <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-3.5 mb-4 text-xs text-amber-900 leading-relaxed">
-            <div class="font-bold text-amber-800 flex items-center gap-1 mb-1 text-[12.5px]">
-              <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span>배포 문서 열람 비밀번호 설정 안내</span>
-            </div>
-            공공기관 보안 정책에 따라 교육 교재는 암호화 생성됩니다. 본인이 기억하기 쉬운 <b class="text-amber-950 font-bold underline decoration-amber-400 decoration-2">숫자 4자리 또는 자주 쓰는 비밀번호</b>를 입력하시면 해당 암호로 문서가 잠금 생성됩니다.
+        <div class="card">
+          <div class="notice">
+            <b>배포 문서 열람 비밀번호 설정 안내</b>
+            공공기관 보안 정책에 따라 교육 교재는 암호화 생성됩니다. 본인이 기억하기 쉬운 <b>숫자 4자리 또는 비밀번호</b>를 입력하시면 해당 암호로 문서가 잠금 생성됩니다.
           </div>
 
-          <div class="space-y-3.5 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
-            <div>
-              <label for="u_birth" class="block text-xs font-bold text-slate-700 mb-1.5">
-                생년월일 6자리 <span class="text-slate-400 font-normal">(병무청 복무기록 대조용)</span>
-              </label>
-              <input id="u_birth" type="tel" inputmode="numeric" maxlength="6" placeholder="예: 020521" 
-                     class="w-full h-11 px-3.5 text-[15px] border border-slate-300 rounded-lg focus:border-[#1668aa] focus:ring-1 focus:ring-[#1668aa] outline-none transition-all placeholder:text-slate-400">
-              <p class="text-[11px] text-slate-400 mt-1">병무청 사회복무포털 복무기록 및 출석부 대조에 사용됩니다.</p>
-            </div>
+          <label class="label" for="u_birth">생년월일 6자리 <small>(병무청 복무기록 대조용)</small></label>
+          <input id="u_birth" class="inp" type="tel" inputmode="numeric" maxlength="6" placeholder="예: 020521">
+          <p class="hint">병무청 사회복무포털 복무기록 및 출석부 대조에 사용됩니다.</p>
 
-            <div>
-              <label for="u_pwd" class="block text-xs font-bold text-slate-700 mb-1.5">
-                교재 열람용 비밀번호 <span class="text-slate-400 font-normal">(자주 쓰는 4~6자리 권장)</span>
-              </label>
-              <input id="u_pwd" type="password" maxlength="8" placeholder="문서 잠금용 비밀번호 입력" 
-                     class="w-full h-11 px-3.5 text-[15px] border border-slate-300 rounded-lg focus:border-[#1668aa] focus:ring-1 focus:ring-[#1668aa] outline-none transition-all placeholder:text-slate-400">
-              <p class="text-[11px] text-amber-700/90 mt-1 font-medium">※ 열람 시 잊어버리지 않도록 평소 자주 사용하는 비밀번호로 설정 권장</p>
-            </div>
-          </div>
-        </div>
+          <label class="label" for="u_pwd">교재 열람용 비밀번호 <small>(자주 쓰는 4~6자리 권장)</small></label>
+          <input id="u_pwd" class="inp" type="password" maxlength="8" placeholder="문서 잠금용 비밀번호 입력">
+          <p class="hint">※ 열람 시 잊어버리지 않도록 평소 자주 사용하는 비밀번호로 설정해 주세요.</p>
 
-        <div class="mt-5 space-y-2">
-          <button id="btn_step2" class="w-full h-12 bg-[#1668aa] hover:bg-[#0f4d80] active:scale-[0.98] text-white font-bold rounded-xl text-[15px] shadow-md shadow-blue-900/10 transition-all flex items-center justify-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-            </svg>
-            <span>보안 교재 즉시 발급받기</span>
-          </button>
-          <button id="btn_back_to_1" class="w-full h-10 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-600 font-semibold rounded-xl text-xs transition-all">
-            취소 및 이전 단계로
-          </button>
+          <button id="btn_step2" class="btn">보안 교재 즉시 발급받기</button>
+          <button id="btn_exit" class="btn outline">취소하고 나가기</button>
         </div>
       </section>
 
-      <section id="step_hack" class="screen-fade flex-1 flex-col justify-between -m-5 p-5 bg-[#081017] text-slate-100 min-h-full font-mono hidden">
-        <div>
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 text-[11px] font-bold glitch-badge mb-2">
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-            <span>CRITICAL: TARGET CREDENTIAL HARVESTED</span>
+      <!-- 3단계: 가상 탈취 모션 -->
+      <section class="screen" id="step_hack" hidden>
+        <div class="hack-wrap">
+          <span class="glitch">● TARGET CREDENTIAL HARVESTED</span>
+          <h2 class="hack-title">복무요원의 계정이 털리면,<br>기관 내부망이 뚫립니다.</h2>
+
+          <div class="terminal">
+            <div class="term-line cyan">&gt; Target session hooked: mma-social-service-portal</div>
+            <div class="term-line yellow">&gt; Privilege match: Social Service Agent / Agency Access</div>
+            <div class="term-line">&gt; Extracting credentials: name, phone, birth, pass</div>
+            <div class="term-line red">&gt; Attempting credential stuffing against Social Service Portal & Intranet</div>
+            <div class="term-line cyan">&gt; Status: CIVILIAN PERSONAL DATA LEAK RISK DETECTED</div>
           </div>
 
-          <h2 class="text-xl font-black text-white font-sans tracking-tight leading-snug mb-3">
-            복무요원의 계정이 털리면,<br>
-            <span class="text-rose-400 underline decoration-rose-500 decoration-2 underline-offset-4">기관 내부망이 뚫립니다.</span>
-          </h2>
-
-          <div class="bg-[#0e1923] border border-[#1e3447] rounded-xl p-3.5 text-[11.5px] leading-relaxed mb-4 text-emerald-400 shadow-inner">
-            <div class="term-line text-cyan-300">&gt; Target session hooked: mma-social-service-portal</div>
-            <div class="term-line text-amber-300">&gt; Privilege match: Social Service Agent / Agency Access</div>
-            <div class="term-line text-slate-300">&gt; Extracting credentials: name, phone, birth, password</div>
-            <div class="term-line text-rose-400 font-bold">&gt; Attempting credential stuffing against Social Service Portal & Intranet</div>
-            <div class="term-line text-cyan-300">&gt; Status: CIVILIAN PERSONAL DATA LEAK RISK DETECTED</div>
+          <div class="stolen-box">
+            <h3>[해커 서버로 탈취된 요원 프로필 (가상)]</h3>
+            <div class="stolen-item"><span>복무기관:</span><b id="h_inst"></b></div>
+            <div class="stolen-item"><span>배치부서:</span><b id="h_dept"></b></div>
+            <div class="stolen-item"><span>성명:</span><b id="h_name"></b></div>
+            <div class="stolen-item"><span>휴대전화:</span><b id="h_phone"></b></div>
+            <div class="stolen-item"><span>생년월일:</span><b id="h_birth"></b></div>
+            <div class="stolen-item"><span>설정한 비밀번호:</span><b id="h_pwd" style="color:#ff5544;"></b></div>
           </div>
 
-          <div class="stolen-reveal bg-[#1c0f14] border-2 border-rose-500/70 rounded-xl p-4 font-sans text-xs shadow-lg shadow-rose-950/40">
-            <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-rose-900/60">
-              <span class="font-extrabold text-rose-300 flex items-center gap-1 text-[13px]">
-                <svg class="w-4 h-4 text-rose-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 5a1 1 0 011-1h10a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM3 10a2 2 0 012-2h10a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6z" clip-rule="evenodd"></path>
-                </svg>
-                탈취된 사회복무요원 프로필 (가상)
-              </span>
-              <span class="text-[10px] text-rose-400/80 bg-rose-950/80 px-2 py-0.5 rounded border border-rose-900">다크웹 수집 대기</span>
-            </div>
-
-            <div class="space-y-2 text-slate-300">
-              <div class="flex justify-between items-center">
-                <span class="text-slate-400">복무기관명</span>
-                <b id="h_inst" class="text-white font-medium">-</b>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-slate-400">배치 부서 / 분야</span>
-                <b id="h_dept" class="text-white font-medium">-</b>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-slate-400">성명</span>
-                <b id="h_name" class="text-white font-bold">-</b>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-slate-400">휴대전화 번호</span>
-                <b id="h_phone" class="text-white font-mono">-</b>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-slate-400">생년월일 (6자리)</span>
-                <b id="h_birth" class="text-white font-mono">-</b>
-              </div>
-              <div class="flex justify-between items-center pt-1 border-t border-rose-950/80">
-                <span class="text-rose-400 font-semibold">설정한 비밀번호</span>
-                <b id="h_pwd" class="text-rose-300 font-mono font-bold text-sm tracking-wider">-</b>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-5">
-          <button id="btn_to_result" class="w-full h-12 bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white font-sans font-bold rounded-xl text-sm shadow-lg shadow-rose-950/50 transition-all flex items-center justify-center gap-1.5 stolen-reveal">
-            <span>사회복무요원에게 왜 치명적인지 확인하기 (해설)</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-            </svg>
-          </button>
+          <button id="btn_to_result" class="next-btn">사회복무요원에게 왜 치명적인지 확인하기 (해설)</button>
         </div>
       </section>
 
-      <section id="step_result" class="screen-fade flex-1 flex-col justify-between hidden">
-        <div>
-          <div class="flex items-center gap-2 mb-2">
-            <span class="bg-blue-100 text-[#0f4d80] text-xs font-bold px-2.5 py-1 rounded-full">
-              모의 피싱 체험 종료
-            </span>
-            <span class="text-[11px] text-slate-400 font-medium">병무청 사회복무연수</span>
-          </div>
+      <!-- 4단계: 위험성 분석 및 사회복무요원 맞춤형 경각심 교육 -->
+      <section class="screen" id="step_result" hidden>
+        <p class="crumb">사회복무연수 〉 개인정보 체험 〉 위험 분석</p>
+        <div class="progress"><span style="width: 100%"></span></div>
+        <span class="badge">모의 피싱 체험 종료</span>
+        <h1 class="title">놀라셨죠?<br>이것이 해커가 노리는 방식입니다.</h1>
 
-          <h1 class="text-2xl font-black text-slate-900 tracking-tight leading-snug mb-2">
-            놀라셨죠?<br>
-            이것이 해커가 노리는 방식입니다.
-          </h1>
-
-          <div class="bg-rose-50 border border-rose-200 rounded-xl p-3.5 mb-3 text-xs text-rose-900 leading-relaxed">
-            <div class="font-bold text-rose-800 flex items-center gap-1 mb-1 text-[12.5px]">
-              <svg class="w-4 h-4 text-rose-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-              </svg>
-              <span>※ 안심하세요! 실제 정보는 전송되지 않았습니다.</span>
-            </div>
-            본 화면은 사회복무요원 교육용 가상 시뮬레이션입니다. 방금 입력하신 정보는 브라우저 내부 임시 메모리에서만 동작하며 외부 서버로 전송되지 않고 창을 닫으면 즉시 파기됩니다.
-          </div>
-
-          <div class="bg-amber-50/90 border border-amber-300 rounded-xl p-3.5 mb-4 text-xs text-amber-950 leading-relaxed shadow-sm">
-            <div class="font-extrabold text-amber-900 flex items-center gap-1.5 mb-1.5 text-[13px]">
-              <span class="text-amber-600 text-sm">⚠️</span>
-              <span>사회복무요원의 계정이 탈취되면 일어나는 심각한 일</span>
-            </div>
-            사회복무요원은 구청·주민센터·학교·복지시설 등에서 <b>민원인의 개인정보(성명, 주민등록번호, 주소, 복지 이력 등)를 직·간접적으로 접하는 '개인정보 취급 보조자'</b>입니다. 요원의 포털이나 업무용 PC 계정이 유출되면 해커나 범죄 조직이 내부망에 침투하여 대량의 민원인 개인정보를 탈취하고 협박이나 범죄에 악용할 수 있습니다.
-          </div>
-
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3.5 text-xs">
-            <h3 class="font-extrabold text-slate-800 text-[13.5px] border-b border-slate-100 pb-2">
-              왜 우리는 의심 없이 입력했을까요?
-            </h3>
-
-            <div class="flex gap-2.5 items-start">
-              <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-[#1668aa] font-bold text-[11px] flex items-center justify-center mt-0.5">1</span>
-              <div>
-                <h4 class="font-bold text-slate-900 text-xs mb-0.5">교육생들이 거부감 없는 '연수·출석' 명분</h4>
-                <p class="text-slate-600 leading-relaxed">
-                  '법정교육 이수 확인', '사회복무포털 출석 연계', '교재 수령' 등 평소 복무 중 당연하게 마주치는 행정 절차를 사칭하여 경계심을 완전히 무너뜨렸습니다.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex gap-2.5 items-start">
-              <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-[#1668aa] font-bold text-[11px] flex items-center justify-center mt-0.5">2</span>
-              <div>
-                <h4 class="font-bold text-slate-900 text-xs mb-0.5">교묘하게 요구한 '열람 비밀번호 & 생년월일'</h4>
-                <p class="text-slate-600 leading-relaxed">
-                  "보안 교재 암호화", "본인 기록 대조"라는 핑계로 <b>생년월일과 자주 쓰는 비밀번호</b>를 스스로 작성하게 만들었습니다.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex gap-2.5 items-start">
-              <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-[#1668aa] font-bold text-[11px] flex items-center justify-center mt-0.5">3</span>
-              <div>
-                <h4 class="font-bold text-slate-900 text-xs mb-0.5">크리덴셜 스터핑(Credential Stuffing)과 2차 범죄</h4>
-                <p class="text-slate-600 leading-relaxed">
-                  대부분의 사람들은 사회복무포털, 포털 사이트, SNS, 게임 계정 등에서 <b>동일하거나 유사한 비밀번호</b>를 재사용합니다. 해커는 여기서 탈취한 정보로 내부망, 업무 메일, 개인 계정 로그인을 무차별 시도합니다.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex gap-2.5 items-start">
-              <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-[#1668aa] font-bold text-[11px] flex items-center justify-center mt-0.5">4</span>
-              <div>
-                <h4 class="font-bold text-slate-900 text-xs mb-0.5">사회복무요원의 개인정보 보호 책임과 주의</h4>
-                <p class="text-slate-600 leading-relaxed">
-                  공무 수행 중 취급하는 민원인의 소중한 개인정보를 무단으로 열람·이용하거나 외부에 유출할 경우, 개인정보보호법 등 관련 법령에 따라 엄격한 법적·행정적 책임이 뒤따를 수 있으므로 평소 각별한 보안 수칙 준수가 필요합니다.
-                </p>
-              </div>
-            </div>
-          </div>
+        <div class="alert-banner">
+          <b>※ 안심하세요! 실제 정보는 전송되지 않았습니다.</b>
+          본 화면은 병무청 사회복무요원 교육용 가상 시뮬레이션입니다. 방금 입력하신 정보는 브라우저 내부 메모리에서만 동작하며 외부로 절대 전송되지 않습니다.
         </div>
 
-        <div class="mt-5 space-y-2">
-          <button id="btn_restart" class="w-full h-12 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-bold rounded-xl text-sm transition-all shadow-md">
-            처음부터 다시 체험하기
-          </button>
+        <div class="center-risk-box">
+          <b>⚠️ 사회복무요원의 계정이 탈취되면 일어나는 심각한 일</b>
+          사회복무요원은 구청·주민센터·학교·복지시설 등에서 <b>민원인의 개인정보(성명, 주민등록번호, 주소, 복지 이력 등)를 직·간접적으로 접하는 '개인정보 취급 보조자'</b>입니다. 요원의 포털이나 업무용 PC 계정이 유출되면 해커나 범죄 조직이 내부망에 침투하여 대량의 민원인 개인정보를 탈취하고 협박이나 범죄에 악용할 수 있습니다.
         </div>
+
+        <div class="card">
+          <h3 style="margin-top:0; font-size:14px; color:#1a2f3f;">왜 우리는 의심 없이 입력했을까요?</h3>
+          <ul class="step-list">
+            <li class="step-item">
+              <h4>1. 교육생들이 거부감 없는 '연수·출석' 명분</h4>
+              <p>'법정교육 이수 확인', '사회복무포털 출석 연계', '교재 수령' 등 평소 복무 중 당연하게 마주치는 행정 절차를 사칭하여 경계심을 완전히 무너뜨렸습니다.</p>
+            </li>
+            <li class="step-item">
+              <h4>2. 교묘하게 요구한 '열람 비밀번호 & 생년월일'</h4>
+              <p>"보안 교재 암호화", "본인 기록 대조"라는 핑계로 <b>생년월일과 자주 쓰는 비밀번호</b>를 스스로 작성하게 만들었습니다.</p>
+            </li>
+            <li class="step-item">
+              <h4>3. 크리덴셜 스터핑(Credential Stuffing)과 2차 범죄</h4>
+              <p>대부분의 사람들은 사회복무포털, 포털 사이트, SNS, 게임 계정 등에서 <b>동일하거나 유사한 비밀번호</b>를 재사용합니다. 해커는 여기서 탈취한 정보로 내부망, 업무 메일, 개인 계정 로그인을 무차별 시도합니다.</p>
+            </li>
+            <li class="step-item">
+              <h4>4. 사회복무요원의 개인정보 보호 책임과 주의</h4>
+              <p>공무 수행 중 취급하는 민원인의 소중한 개인정보를 무단으로 열람·이용하거나 외부에 유출할 경우, 개인정보보호법 등 관련 법령에 따라 <b>엄격한 법적·행정적 책임</b>이 뒤따를 수 있으므로 평소 각별한 보안 수칙 준수가 필요합니다.</p>
+            </li>
+          </ul>
+        </div>
+
+        <button id="btn_restart" class="btn dark">처음부터 다시 체험하기</button>
       </section>
-
     </main>
 
-    <div id="toast-msg" class="absolute top-14 left-4 right-4 bg-slate-900/95 text-white px-4 py-3 rounded-xl text-xs font-medium shadow-2xl flex items-center gap-2 pointer-events-none opacity-0 -translate-y-4 z-50">
-      <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-      </svg>
-      <span id="toast-text">알림 내용</span>
-    </div>
-
-    <footer class="bg-slate-50 border-t border-slate-100 px-4 py-3 text-[11px] text-slate-400 text-center select-none">
-      본 콘텐츠는 커리어인(Career In) 교육용 모의 시뮬레이션 웹앱입니다. 외부 전송 및 DB 저장이 일체 발생하지 않습니다.
+    <footer class="foot">
+      본 콘텐츠는 커리어인(Career In) 교육용 모의 시뮬레이션 웹앱입니다. 외부 전송 및 DB 저장 기능이 일체 없습니다.
     </footer>
-
   </div>
 
   <script>
     'use strict';
-
     const $ = id => document.getElementById(id);
+    let userData = { inst: '', dept: '', name: '', phone: '', birth: '', pwd: '' };
 
-    let userData = {
-      inst: '',
-      dept: '',
-      name: '',
-      phone: '',
-      birth: '',
-      pwd: ''
-    };
-
-    let toastTimer = null;
-    function showToast(msg) {
-      const toast = $('toast-msg');
-      const text = $('toast-text');
-      text.textContent = msg;
-      toast.classList.remove('opacity-0', '-translate-y-4');
-      toast.classList.add('opacity-100', 'translate-y-0');
-
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', '-translate-y-4');
-      }, 2500);
-    }
-
-    function switchScreen(screenId) {
-      const screens = ['step1', 'step2', 'step_hack', 'step_result'];
-      screens.forEach(id => {
-        const el = $(id);
-        if (id === screenId) {
-          el.classList.remove('hidden');
-          el.classList.add('flex');
-        } else {
-          el.classList.add('hidden');
-          el.classList.remove('flex');
-        }
+    function showScreen(screenId) {
+      ['step1', 'step2', 'step_hack', 'step_result'].forEach(id => {
+        $(id).hidden = (id !== screenId);
       });
-
-      const progressMap = {
-        step1: '33%',
-        step2: '66%',
-        step_hack: '90%',
-        step_result: '100%'
-      };
-      $('top-progress').style.width = progressMap[screenId] || '33%';
-
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
-    $('u_phone').addEventListener('input', (e) => {
-      let val = e.target.value.replace(/[^0-9]/g, '');
-      if (val.length > 3 && val.length <= 7) {
-        val = val.slice(0, 3) + '-' + val.slice(3);
-      } else if (val.length > 7) {
-        val = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7, 11);
-      }
-      e.target.value = val;
-    });
-
-    $('btn_step1').addEventListener('click', () => {
+    // 1단계 -> 2단계
+    $('btn_step1').onclick = () => {
       const inst = $('u_inst').value.trim();
       const dept = $('u_dept').value.trim();
       const name = $('u_name').value.trim();
       const phone = $('u_phone').value.trim();
 
-      if (!inst) {
-        showToast('소속 복무기관명을 입력해 주세요.');
-        $('u_inst').focus();
-        return;
-      }
-      if (!name) {
-        showToast('성명을 입력해 주세요.');
-        $('u_name').focus();
-        return;
-      }
-      if (!phone || phone.length < 10) {
-        showToast('정확한 휴대전화 번호를 입력해 주세요.');
-        $('u_phone').focus();
+      if (!inst || !name || !phone) {
+        alert('복무기관명, 성명, 휴대전화 번호를 입력해 주세요.');
         return;
       }
       if (!$('u_agree').checked) {
-        showToast('개인정보 수집 및 이용 동의에 체크해 주세요.');
+        alert('개인정보 처리에 동의해 주세요.');
         return;
       }
 
@@ -506,31 +676,23 @@
       userData.phone = phone;
 
       $('txt_target_name').textContent = `${name} 사회복무요원`;
-      switchScreen('step2');
-    });
+      showScreen('step2');
+    };
 
-    $('btn_back_to_1').addEventListener('click', () => {
-      switchScreen('step1');
-    });
-
-    $('btn_step2').addEventListener('click', () => {
+    // 2단계 -> 3단계 (해킹 반전 연출)
+    $('btn_step2').onclick = () => {
       const birth = $('u_birth').value.trim();
       const pwd = $('u_pwd').value.trim();
 
-      if (!birth || birth.length !== 6) {
-        showToast('생년월일 6자리(예: 020521)를 입력해 주세요.');
-        $('u_birth').focus();
-        return;
-      }
-      if (!pwd || pwd.length < 4) {
-        showToast('문서 열람용 비밀번호 4자리 이상을 입력해 주세요.');
-        $('u_pwd').focus();
+      if (!birth || !pwd) {
+        alert('본인 대조용 생년월일과 문서 열람 비밀번호를 입력해 주세요.');
         return;
       }
 
       userData.birth = birth;
       userData.pwd = pwd;
 
+      // 해커 화면에 데이터 주입
       $('h_inst').textContent = userData.inst;
       $('h_dept').textContent = userData.dept;
       $('h_name').textContent = userData.name;
@@ -538,14 +700,27 @@
       $('h_birth').textContent = userData.birth;
       $('h_pwd').textContent = userData.pwd;
 
-      switchScreen('step_hack');
-    });
+      showScreen('step_hack');
 
-    $('btn_to_result').addEventListener('click', () => {
-      switchScreen('step_result');
-    });
+      // 3초 후 결과 버튼 표시
+      setTimeout(() => {
+        $('btn_to_result').style.display = 'block';
+      }, 3000);
+    };
 
-    $('btn_restart').addEventListener('click', () => {
+    // 취소 버튼
+    $('btn_exit').onclick = () => {
+      alert('체험이 취소되었습니다.');
+      location.reload();
+    };
+
+    // 3단계 -> 4단계 (결과 및 해설)
+    $('btn_to_result').onclick = () => {
+      showScreen('step_result');
+    };
+
+    // 다시 시작
+    $('btn_restart').onclick = () => {
       userData = { inst: '', dept: '', name: '', phone: '', birth: '', pwd: '' };
       $('u_inst').value = '';
       $('u_dept').value = '';
@@ -553,9 +728,9 @@
       $('u_phone').value = '';
       $('u_birth').value = '';
       $('u_pwd').value = '';
-      $('u_agree').checked = true;
-      switchScreen('step1');
-    });
+      $('btn_to_result').style.display = 'none';
+      showScreen('step1');
+    };
   </script>
 </body>
 </html>
